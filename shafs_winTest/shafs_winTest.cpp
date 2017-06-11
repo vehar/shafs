@@ -31,26 +31,28 @@ int main(int argc, char* argv[])
 	//*
 	FlashEmyInit();
 
-	TestSet(0);
+	TestSet(1);
 	sf.name = 0xA1;
 	sf.lenght = 551; //0x14
 	shafs_write(sf, arr);
 
 	TestSet(2);
 	sf.name = 0xA2;
-	sf.lenght = 253; //7
+	sf.lenght = 53; //7
 	shafs_write(sf, arr);
 
-	
+	TestSet(4);
+	sf.name = 0xA2;
+	sf.lenght = 453; //7
+	shafs_write(sf, arr);
+
 	TestSet(1);
 	TestSet(0x11);
 	sf.name = 0xA1;
 	sf.lenght = 943; //0x28
 	shafs_write(sf, arr);
 
-
-
-	TestSet(0x22);
+	TestSet(3);
 	sf.name = 0xA2;
 	sf.lenght = 253; //0x0A
 	shafs_write(sf, arr);
@@ -60,7 +62,11 @@ int main(int argc, char* argv[])
 	sf.lenght = 5; //5
 	shafs_write(sf, arr);
 
-	FlashEmyRead(arr, 10, 5000);
+	memset(arr, 0, TEST_ARR_SZ);
+	sf.name = 0xA2;
+	sf.lenght = 300; //0x23
+	shafs_read(sf, arr);
+
 /*	TestSet(5);
 	sf.name = 0xA5;
 	sf.lenght = 50; //0x32

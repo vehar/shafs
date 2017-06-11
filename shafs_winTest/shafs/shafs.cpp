@@ -14,19 +14,19 @@ shafsChunkHeader_t sh_wr;
 uint8_t chunkState[CHUNK_AMOUNT_TO_BIT]; //1bit per chunk
 uint8_t FlashPageBuff[CHUNK_SIZE];
 
-void FlashLowLevelWrite(uint8_t *FlashPageBuff, uint32_t FlashWrAddr, uint16_t numBytes)
+void FlashLowLevelWrite(uint8_t *PageBuff, uint32_t FlashWrAddr, uint16_t numBytes)
 {
 #ifdef _WIN32
-	 FlashEmyWrite(FlashPageBuff, FlashWrAddr,numBytes);
+	 FlashEmyWrite(PageBuff, FlashWrAddr,numBytes);
 #else
 	SPI_Flash_Write_Page(FlashPageBuff, FlashWrAddr,numBytes);
 #endif 
 }
 
-void FlashLowLevelRead(uint8_t *FlashPageBuff, uint32_t FlashRdAddr, uint16_t numBytes)
+void FlashLowLevelRead(uint8_t *PageBuff, uint32_t FlashRdAddr, uint16_t numBytes)
 {
 #ifdef _WIN32
-	 FlashEmyRead(FlashPageBuff, FlashRdAddr,numBytes);
+	 FlashEmyRead(PageBuff, FlashRdAddr,numBytes);
 #else
 	SPI_Flash_Read(FlashPageBuff, FlashRdAddr,numBytes);
 #endif 
@@ -117,12 +117,68 @@ EXIT:
 	return retval;
 }
 
+uint8_t pBuff[CHUNK_SIZE*10];
 void shafs_read(shafsFile_t file, uint8_t* data)
 {
+	uint32_t byteAmount = 0;
+	uint16_t chunkCnt = 0;
+	int16_t chunkIdx = 0;
+	uint8_t idx = 0;
+	uint32_t totalFileSize = 0;
+	uint8_t tBuff[CHUNK_SIZE];
+
 	uint32_t i = shafs_openFile(file);
-	uint32_t startAddrPhy = RamFs[i].startAddrPhy;
+	uint32_t startAddrPhy = RamFs[i].endAddrPhy - CHUNK_SIZE; //set read зек to start of last file chunk
 	
-	FlashLowLevelRead(data, startAddrPhy, file.lenght);
+	uint8_t chunkArr[CHUNK_SIZE];
+	shafsFile_t chunkIdxArr[CHUNK_SIZE];
+	byteAmount = CHUNK_SIZE;
+
+//search for chunk chain
+do
+{
+	memset(chunkArr, 0, CHUNK_SIZE);
+	FlashLowLevelRead(chunkArr, startAddrPhy, byteAmount);
+
+	//search for 1-st chunk header to restore chain of file chunks
+	for(idx = 0; idx < CHUNK_SIZE; idx++)
+	{
+		if(chunkArr[idx] == (FLASH_FILE_ACTIVE & 0xFF))
+		{
+			if (chunkArr[idx+1] == (FLASH_FILE_ACTIVE & 0xFF)) //Header valid
+			{
+				chunkIdxArr[chunkCnt].name = startAddrPhy/CHUNK_SIZE;// save chunk idx
+				chunkIdxArr[chunkCnt].lenght = chunkArr[idx-2];
+				chunkCnt++;
+				totalFileSize += chunkArr[idx-2];
+				break;
+			};
+		}
+	}
+
+	chunkIdx = (chunkArr[idx-4] + (chunkArr[idx-3]<<8)) - 1;
+	startAddrPhy = chunkIdx * CHUNK_SIZE;
+
+}while(chunkIdx>0);
+
+chunkCnt -= 1;
+byteAmount = 0;
+uint32_t t = 0;
+do
+{
+	t += byteAmount;
+	startAddrPhy = (chunkIdxArr[chunkCnt].name) * CHUNK_SIZE;
+	byteAmount = chunkIdxArr[chunkCnt].lenght;
+	FlashLowLevelRead(tBuff, startAddrPhy, byteAmount);
+
+	for(int i = 0; i < byteAmount; i++) //PATCH:
+	{
+		pBuff[i+t] = tBuff[i];
+	}
+
+}while(chunkCnt--);
+
+memcpy(data, pBuff, totalFileSize);
 }
 
 shafsHndl_t tmpRamFs;
@@ -181,6 +237,11 @@ int e = SHAFS_HEADER_SIZE; //
 	
 	do{
 		//sh_wr.currentChunk = chunkCntToWrite; //start write from zero chunk
+
+		//if write a full chunk - mark it
+		if(chunkNeeded != 0){sh_wr.chunkRemain = MAX_DATA_PER_CHUNK;}
+		else{sh_wr.chunkRemain = file.lenght % MAX_DATA_PER_CHUNK;};
+
 		sh_wr.prevChunk = (tmpRamFs.endAddrPhy/256) ;		
 		//calc data volume to write in current chunk
 		if(chunkNeeded == 0)
