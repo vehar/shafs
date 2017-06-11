@@ -25,9 +25,12 @@ void TestSet(uint8_t val)
 	else{for(int i = 0; i < TEST_ARR_SZ; i++){arr[i] = i;}}
 }
 
+uint16_t s = 0;
 int main(int argc, char* argv[])
 {
 	printf("Start\r\n");
+	 shafs_init();
+	 s = shafs_getFreeSpace();
 	//*
 	FlashEmyInit();
 
@@ -36,31 +39,42 @@ int main(int argc, char* argv[])
 	sf.lenght = 551; //0x14
 	shafs_write(sf, arr);
 
+	s = shafs_getFreeSpace();
+
 	TestSet(2);
 	sf.name = 0xA2;
 	sf.lenght = 53; //7
 	shafs_write(sf, arr);
+
+	s = shafs_getFreeSpace();
 
 	TestSet(4);
 	sf.name = 0xA2;
 	sf.lenght = 453; //7
 	shafs_write(sf, arr);
 
-	TestSet(1);
+	s = shafs_getFreeSpace();
+
 	TestSet(0x11);
 	sf.name = 0xA1;
 	sf.lenght = 943; //0x28
 	shafs_write(sf, arr);
+
+	s = shafs_getFreeSpace();
 
 	TestSet(3);
 	sf.name = 0xA2;
 	sf.lenght = 253; //0x0A
 	shafs_write(sf, arr);
 
-	TestSet(1);
+	s = shafs_getFreeSpace();
+
+	TestSet(7);
 	sf.name = 0xA1;
 	sf.lenght = 5; //5
 	shafs_write(sf, arr);
+
+	s = shafs_getFreeSpace();
 
 	memset(arr, 0, TEST_ARR_SZ);
 	sf.name = 0xA2;

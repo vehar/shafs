@@ -36,7 +36,8 @@
 #define BLOCK_SIZE (SECTOR_SIZE*NUM_SECTOR_PER_BLOCK)
 #define TOTAL_SIZE (BLOCK_SIZE*NUM_OF_BLOCKS)
 
-#define CHUNK_AMOUNT_TO_BIT (TOTAL_SIZE/CHUNK_SIZE/8) //1bit per chunk
+#define TOTAL_CHUNKS (TOTAL_SIZE/CHUNK_SIZE)
+#define CHUNK_AMOUNT_TO_BIT (TOTAL_CHUNKS/8) //1bit per chunk
 
 
 enum CHUNK_STATE
@@ -75,6 +76,8 @@ shafsFile_t file;
 #define SHAFS_HEADER_SIZE (sizeof(shafsChunkHeader_t))
 #define MAX_DATA_PER_CHUNK (CHUNK_SIZE-SHAFS_HEADER_SIZE)	
 
+void shafs_init(void);
+uint16_t shafs_getFreeSpace(void);
 void shafs_write(shafsFile_t file, uint8_t* data);
 void shafs_read(shafsFile_t file, uint8_t* data);
 

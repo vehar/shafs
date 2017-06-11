@@ -73,6 +73,21 @@ Bit n will be set if x is 1, and cleared if x is 0.
 
 */
 
+void shafs_scan(void)// exec on start for load in RAM entire structure
+{
+
+}
+
+uint16_t shafs_getFreeSpace(void)
+{
+	uint16_t chunkCnt = 0;
+	for(uint16_t i = 0; i < TOTAL_CHUNKS; i++)
+	{
+		if(shafs_GetChunkState(i) == 1){chunkCnt++;}
+	}
+return chunkCnt;
+}
+
 uint32_t LastWrAddr = 0;
 
 //TODO:
@@ -159,7 +174,7 @@ do
 	chunkIdx = (chunkArr[idx-4] + (chunkArr[idx-3]<<8)) - 1;
 	startAddrPhy = chunkIdx * CHUNK_SIZE;
 
-}while(chunkIdx>0);
+}while(chunkIdx>=0);
 
 chunkCnt -= 1;
 byteAmount = 0;
@@ -206,7 +221,8 @@ void shafs_write(shafsFile_t file, uint8_t* data)
 		//check next free space to write
 		if(shafs_GetChunkState(lastChunk) == 1)//if next space is free
 		{
-			FlashWrAddr = tmpRamFs.endAddrPhy; //continue writing 
+			//FlashWrAddr = tmpRamFs.endAddrPhy; //continue writing 
+			FlashWrAddr = LastWrAddr; //jump to next free space
 			//mark prev header as "obsolete"
 			// ...
 		}
