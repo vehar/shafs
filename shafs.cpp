@@ -1,4 +1,4 @@
-#include "shafs.hpp"
+#include "shafs.h"
 
 #ifdef _WIN32
 	#include "FlashEmulator.hpp"
@@ -6,8 +6,9 @@
 	#include "w25x20.h"
 #endif 
 
-#define SHAFS_RAM_VOLUME (10)
+#define SHAFS_RAM_VOLUME (5) //suport for n different files
 shafsHndl_t RamFs[SHAFS_RAM_VOLUME]; //image
+
 shafsChunkHeader_t sh_wr;
 
 //1 - clear; 0 - dirty
@@ -35,7 +36,9 @@ void FlashLowLevelRead(uint8_t *PageBuff, uint32_t FlashRdAddr, uint16_t numByte
 
 void shafs_init(void)
 {
+#ifdef _WIN32
 	memset(chunkState, 0xFF, CHUNK_AMOUNT_TO_BIT);
+#endif
 }
 
 void shafs_SetChunkClear(uint16_t num)
@@ -51,27 +54,6 @@ uint8_t shafs_GetChunkState(uint16_t num)
 	return BIT_TEST(chunkState, num); //Checking a bit
 }
 
-/*
-Changing the nth bit to x
-Setting the nth bit to either 1 or 0 can be achieved with the following:
-number ^= (-x ^ number) & (1 << n);
-Bit n will be set if x is 1, and cleared if x is 0.
-*/
-
-/*
-// a=target variable, b=bit number to act upon 0-n 
-#define BIT_SET(a,b) ((a) |= (1<<(b)))
-#define BIT_CLEAR(a,b) ((a) &= ~(1<<(b)))
-#define BIT_FLIP(a,b) ((a) ^= (1<<(b)))
-#define BIT_CHECK(a,b) ((a) & (1<<(b)))
-
-// x=target variable, y=mask 
-#define BITMASK_SET(x,y) ((x) |= (y))
-#define BITMASK_CLEAR(x,y) ((x) &= (~(y)))
-#define BITMASK_FLIP(x,y) ((x) ^= (y))
-#define BITMASK_CHECK(x,y) (((x) & (y)) == (y))
-
-*/
 
 void shafs_scan(void)// exec on start for load in RAM entire structure
 {

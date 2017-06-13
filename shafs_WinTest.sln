@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shafs_WinTest", "shafs_WinTest.vcproj", "{202B23B5-9FF1-4EBE-A303-11FDE8059A32}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{202B23B5-9FF1-4EBE-A303-11FDE8059A32}.Debug|Win32.ActiveCfg = Debug|Win32
+		{202B23B5-9FF1-4EBE-A303-11FDE8059A32}.Debug|Win32.Build.0 = Debug|Win32
+		{202B23B5-9FF1-4EBE-A303-11FDE8059A32}.Release|Win32.ActiveCfg = Release|Win32
+		{202B23B5-9FF1-4EBE-A303-11FDE8059A32}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

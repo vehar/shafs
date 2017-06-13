@@ -5,14 +5,12 @@
 #include <windows.h>
 #include <fstream>
 
-#include "shafs\FlashEmulator.hpp"
-#include "shafs\shafs.hpp"
+#include "FlashEmulator.hpp"
+#include "shafs.h"
 
 using namespace std;
 
-//ofstream ftout(filePath, std::ofstream::out | std::ofstream::app);
-//ifstream ftin(filePath, std::ofstream::in | std::ofstream::app);
-
+uint16_t s = 0;
 shafsFile_t sf;
 
 #define TEST_ARR_SZ (256*16*16*4)
@@ -25,7 +23,7 @@ void TestSet(uint8_t val)
 	else{for(int i = 0; i < TEST_ARR_SZ; i++){arr[i] = i;}}
 }
 
-uint16_t s = 0;
+
 int main(int argc, char* argv[])
 {
 	printf("Start\r\n");

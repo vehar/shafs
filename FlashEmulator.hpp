@@ -20,12 +20,20 @@
 
 char filePath[];
 
-void FlashLowLevelWrite(uint8_t *FlashPageBuff, uint32_t FlashWrAddr, uint16_t numBytes);
-void FlashLowLevelRead(uint8_t *FlashPageBuff, uint32_t FlashRdAddr, uint16_t numBytes);
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
+	void FlashLowLevelWrite(uint8_t *FlashPageBuff, uint32_t FlashWrAddr, uint16_t numBytes);
+	void FlashLowLevelRead(uint8_t *FlashPageBuff, uint32_t FlashRdAddr, uint16_t numBytes);
 
-void FlashEmyInit(void);
-void FlashEmyWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
-void FlashEmyRead (uint8_t* pBuffer, uint32_t ReadeAddr, uint16_t NumByteToRead);
+	void FlashEmyInit(void);
+	void FlashEmyWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite);
+	void FlashEmyRead (uint8_t* pBuffer, uint32_t ReadeAddr, uint16_t NumByteToRead);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //_FLASH_EMULATOR_H_
+ 

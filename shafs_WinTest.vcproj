@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="shafs_test"
-	ProjectGUID="{EC0D3B47-E6B9-46BC-A2DA-871C0DE7F19C}"
+	Name="shafs_WinTest"
+	ProjectGUID="{202B23B5-9FF1-4EBE-A303-11FDE8059A32}"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="0"
 	>
@@ -17,11 +17,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="A:\ShafsDebug"
-			IntermediateDirectory="A:\ShafsDebug"
+			OutputDirectory="A:\Debug"
+			IntermediateDirectory="A:\Debug"
 			ConfigurationType="1"
-			BuildLogFile="A:\BuildLog.htm"
-			EnableManagedIncrementalBuild="0"
+			DeleteExtensionsOnClean="*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;*.meta;*.ncb;$(TargetPath)"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -61,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -168,15 +167,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\shafs_wintest\shafs\FlashEmulator.hpp"
+				RelativePath=".\FlashEmulator.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\shafs_wintest\shafs\shafs.hpp"
+				RelativePath=".\shafs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\shafs_wintest\shafs\stdint.h"
+				RelativePath=".\stdint.h"
 				>
 			</File>
 		</Filter>
@@ -192,15 +191,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\shafs_wintest\shafs\FlashEmulator.cpp"
+				RelativePath=".\FlashEmulator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\shafs_wintest\shafs\shafs.cpp"
+				RelativePath=".\shafs.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\shafs_wintest\shafs_winTest.cpp"
+				RelativePath=".\shafs_winTest.cpp"
 				>
 			</File>
 		</Filter>
