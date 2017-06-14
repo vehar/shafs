@@ -13,6 +13,7 @@ void FlashEmyInit(void)
   memset(buffer, 0xFF, TOTAL_SIZE);
   fout.write (buffer,TOTAL_SIZE);
   fout.close();
+  delete buffer;
 }
 
 void FlashEmyWrite(uint8_t* pBuffer, uint32_t WriteAddr, uint16_t NumByteToWrite)

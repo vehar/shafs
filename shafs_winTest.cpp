@@ -27,11 +27,13 @@ void TestSet(uint8_t val)
 int main(int argc, char* argv[])
 {
 	printf("Start\r\n");
-	 shafs_init();
+	// shafs_eraze();
 	 s = shafs_getFreeSpace();
-	//*
+	
 	FlashEmyInit();
 
+	shafs_scan();
+/*
 	TestSet(1);
 	sf.name = 0xA1;
 	sf.lenght = 551; //0x14
@@ -68,12 +70,12 @@ int main(int argc, char* argv[])
 	s = shafs_getFreeSpace();
 
 	TestSet(7);
-	sf.name = 0xA1;
+	sf.name = 0xA3;
 	sf.lenght = 5; //5
 	shafs_write(sf, arr);
 
 	s = shafs_getFreeSpace();
-
+//*/
 	memset(arr, 0, TEST_ARR_SZ);
 	sf.name = 0xA2;
 	sf.lenght = 300; //0x23
@@ -111,7 +113,7 @@ int main(int argc, char* argv[])
 	ftin.seekg(0,ios::beg);
 	ftin.read((char*)arr, 1000);
 	ftin.close();
-*/
+//*/
 
 	return 0;  
 }

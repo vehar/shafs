@@ -103,10 +103,11 @@ extern "C" {
 	
 	void FlashLowLevelRead(uint8_t *PageBuff, uint32_t FlashRdAddr, uint16_t numBytes);
 	
-	void shafs_init(void);
+	void shafs_eraze(void);
 	uint16_t shafs_getFreeSpace(void);
-	void shafs_write(shafsFile_t file, uint8_t* data);
-	void shafs_read(shafsFile_t file, uint8_t* data);
+	uint8_t shafs_write(shafsFile_t file, uint8_t* data);
+	uint8_t shafs_read(shafsFile_t file, uint8_t* data);
+	uint8_t shafs_scan();
 
 #ifdef __cplusplus
 }

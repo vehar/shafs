@@ -9,14 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-#define NUM_CHUNKS_PER_SECTOR (16)
-#define NUM_SECTOR_PER_BLOCK (16)
-#define NUM_OF_BLOCKS (4)
-
-#define CHUNK_SIZE (256) //= PAGE SIZE
-#define SECTOR_SIZE (CHUNK_SIZE*NUM_CHUNKS_PER_SECTOR)
-#define BLOCK_SIZE (SECTOR_SIZE*NUM_SECTOR_PER_BLOCK)
-#define TOTAL_SIZE (BLOCK_SIZE*NUM_OF_BLOCKS)
+#include "shafs.h"
 
 char filePath[];
 
