@@ -27,13 +27,15 @@ void TestSet(uint8_t val)
 int main(int argc, char* argv[])
 {
 	printf("Start\r\n");
-	// shafs_eraze();
+	 shafs_eraze();
 	 s = shafs_getFreeSpace();
 	
 	FlashEmyInit();
 
-	shafs_scan();
-/*
+	//shafs_scan();
+
+	 s = shafs_getFreeSpace();
+//*
 	TestSet(1);
 	sf.name = 0xA1;
 	sf.lenght = 551; //0x14
@@ -77,7 +79,7 @@ int main(int argc, char* argv[])
 	s = shafs_getFreeSpace();
 //*/
 	memset(arr, 0, TEST_ARR_SZ);
-	sf.name = 0xA2;
+	sf.name = 0xA1;
 	sf.lenght = 300; //0x23
 	shafs_read(sf, arr);
 

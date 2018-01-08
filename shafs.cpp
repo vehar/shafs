@@ -14,6 +14,8 @@ shafsChunkHeader_t sh_wr;
 //1 - clear; 0 - dirty
 uint8_t chunkState[CHUNK_AMOUNT_TO_BIT]; //1bit per chunk
 uint8_t FlashPageBuff[CHUNK_SIZE];
+uint8_t shafsRamTailIdx = 0;
+uint32_t LastWrAddr = 0;
 
 void FlashLowLevelWrite(uint8_t *PageBuff, uint32_t FlashWrAddr, uint16_t numBytes)
 {
@@ -54,6 +56,15 @@ uint8_t shafs_GetChunkState(uint16_t num)
 	return BIT_TEST(chunkState, num); //Checking a bit
 }
 
+uint8_t shafs_SearchFreeChunk(void)
+{
+	uint8_t num = 0;
+	for(uint8_t i = 0; i < CHUNK_AMOUNT_TO_BIT; i++)
+	{
+		if(shafs_GetChunkState(i) == 0){num = i; break;}
+	}
+	return num;
+}
 // exec on start for load in RAM entire structure
 
 
@@ -67,11 +78,92 @@ uint16_t shafs_getFreeSpace(void)
 return chunkCnt;
 }
 
-uint32_t LastWrAddr = 0;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+uint8_t shafs_scan(void)
+{
+	uint32_t byteAmount = 0;
+	uint16_t chunkCnt = 0;
+	int16_t chunkIdx = 0;
+	uint16_t idx = 0;
+	uint32_t totalFileSize = 0;
+	uint8_t error = 0;
+	uint32_t startAddrPhy = 0;
+	uint32_t endAddrPhy = 0;
+
+	uint8_t tName = 0;
+	uint16_t tLenght = 0;
+
+	startAddrPhy = 0;
+
+	uint8_t chunkArr[CHUNK_SIZE];
+	byteAmount = CHUNK_SIZE;
+
+//search for chunk chain
+do
+{
+	memset(chunkArr, 0, CHUNK_SIZE);
+	FlashLowLevelRead(chunkArr, startAddrPhy*CHUNK_SIZE, byteAmount);
+	startAddrPhy++;
+
+	//search for chunk header to restore names+length of files
+	for(idx = 0; idx < CHUNK_SIZE; idx++)
+	{
+		if(chunkArr[idx] == (FLASH_FILE_ACTIVE & 0xFF))
+		{
+			if (chunkArr[idx+1] == (FLASH_FILE_ACTIVE & 0xFF)) //Header valid
+			{
+				tName = chunkArr[idx-1];
+				tLenght = chunkArr[idx-2];
+				
+				shafs_SetChunkDirty(chunkCnt);
+				chunkCnt++;
+				LastWrAddr += chunkCnt*CHUNK_SIZE;
+				error = 0;
+
+				//search for unic name in ramFs arr
+				for(uint8_t i = 0; i < SHAFS_RAM_VOLUME; i++)
+				{
+					if(RamFs[i].file.name == tName)// existing file
+					{
+						RamFs[i].file.lenght += tLenght;
+						RamFs[i].endAddrPhy = (startAddrPhy)*CHUNK_SIZE;
+						goto exit;
+					}
+				}
+
+				//search for free space to add new file
+				for(uint8_t i = 0; i < SHAFS_RAM_VOLUME; i++)
+				{
+					if(RamFs[i].file.name == 0)// existing file
+					{
+						RamFs[i].file.name = tName;
+						RamFs[i].file.lenght = tLenght;
+						RamFs[i].endAddrPhy = (startAddrPhy)*CHUNK_SIZE; //Set wr adr to next chunk ;tLenght
+						RamFs[i].ramIdx = i;
+						shafsRamTailIdx++;
+						goto exit;
+					}
+				}
+		}
+		}
+		else
+		{
+				error = 1; //no header found in chunk
+		}
+	}
+	
+exit: while(0);
+
+}while(startAddrPhy <= TOTAL_CHUNKS); //search all chunks
+
+return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 //TODO:
 //дописать аллокатор и поиск чистого сдедующего адреса
-uint8_t shafsRamTailIdx = 0;
 
 uint32_t shafs_openFile(shafsFile_t file)
 {
@@ -187,88 +279,9 @@ return 0;
 }
 
 
-uint8_t shafs_scan(void)
-{
-	uint32_t byteAmount = 0;
-	uint16_t chunkCnt = 0;
-	int16_t chunkIdx = 0;
-	uint16_t idx = 0;
-	uint32_t totalFileSize = 0;
-	uint8_t tBuff[CHUNK_SIZE];
-	uint8_t error = 0;
-	uint32_t startAddrPhy = 0;
-	uint32_t endAddrPhy = 0;
-
-	uint8_t tName = 0;
-	uint16_t tLenght = 0;
-
-	startAddrPhy = 0;
-
-	uint8_t chunkArr[CHUNK_SIZE];
-	shafsFile_t chunkIdxArr[CHUNK_SIZE];
-	byteAmount = CHUNK_SIZE;
-
-//search for chunk chain
-do
-{
-	memset(chunkArr, 0, CHUNK_SIZE);
-	FlashLowLevelRead(chunkArr, startAddrPhy*CHUNK_SIZE, byteAmount);
-	startAddrPhy++;
-
-	//search for chunk header to restore names+length of files
-	for(idx = 0; idx < CHUNK_SIZE; idx++)
-	{
-		if(chunkArr[idx] == (FLASH_FILE_ACTIVE & 0xFF))
-		{
-			if (chunkArr[idx+1] == (FLASH_FILE_ACTIVE & 0xFF)) //Header valid
-			{
-				tName = chunkArr[idx-1];
-				tLenght = chunkArr[idx-2];
-				chunkCnt++;
-				error = 0;
-
-				//search for unic name in ramFs arr
-				for(uint8_t i = 0; i < SHAFS_RAM_VOLUME; i++)
-				{
-					if(RamFs[i].file.name == tName)// existing file
-					{
-						RamFs[i].file.lenght += tLenght;
-						RamFs[i].endAddrPhy = (startAddrPhy)*CHUNK_SIZE;
-						goto exit;
-					}
-				}
-
-				//search for free space to add new file
-				for(uint8_t i = 0; i < SHAFS_RAM_VOLUME; i++)
-				{
-					if(RamFs[i].file.name == 0)// existing file
-					{
-						RamFs[i].file.name = tName;
-						RamFs[i].file.lenght = tLenght;
-						RamFs[i].endAddrPhy = (startAddrPhy)*CHUNK_SIZE; //Set wr adr to next chunk ;tLenght
-						RamFs[i].ramIdx = i;
-						shafsRamTailIdx++;
-						goto exit;
-					}
-				}
-		}
-		}
-		else
-		{
-				error = 1; //no header found in chunk
-		}
-	}
-	
-exit: while(0);
-
-}while(startAddrPhy <= TOTAL_CHUNKS); //search all chunks
-
-return 0;
-}
-
 shafsHndl_t tmpRamFs;
 
-uint16_t lastChunk = 0;
+
 
 uint8_t shafs_write(shafsFile_t file, uint8_t* data)
 {
@@ -277,7 +290,9 @@ uint8_t shafs_write(shafsFile_t file, uint8_t* data)
 	uint16_t chunkCntToWrite = 0;
 	uint8_t  dataInChunk = 0;
 	uint32_t i = 0;
-	
+	uint16_t lastChunk = LastWrAddr/CHUNK_SIZE;
+
+
 	if((file.lenght == 0) || (file.lenght >= TOTAL_SIZE)) return -1;// check for valid lenght of file
 	
 	i = shafs_openFile(file); //if ok - first open the file
@@ -300,6 +315,7 @@ uint8_t shafs_write(shafsFile_t file, uint8_t* data)
 		{
 			// ...
 			FlashWrAddr = LastWrAddr; //jump to next free space
+			//FlashWrAddr = shafs_SearchFreeChunk() * CHUNK_SIZE;
 		}
 		
 	}
